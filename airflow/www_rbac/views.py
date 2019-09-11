@@ -514,12 +514,11 @@ class Airflow(AirflowBaseView):
                 })
         return wwwutils.json_response(payload)
 
-    @expose('/last_dagruns', methods=['POST'])
+    @expose('/last_dagruns')
     @has_access
     @provide_session
     def last_dagruns(self, session=None):
         DagRun = models.DagRun
-
         allowed_dag_ids = appbuilder.sm.get_accessible_dag_ids()
 
         if 'all_dags' in allowed_dag_ids:
@@ -552,6 +551,7 @@ class Airflow(AirflowBaseView):
             } for r in query
         }
         return wwwutils.json_response(resp)
+
 
     @expose('/code')
     @has_dag_access(can_dag_read=True)
