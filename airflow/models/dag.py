@@ -1715,8 +1715,7 @@ class DagTag(Base):
         return self.name
 
 
-class DagModel(Base):
-
+class DagModel(Base, LoggingMixin):
     __tablename__ = "dag"
     """
     These items are stored in the database for state related information
@@ -1823,6 +1822,10 @@ class DagModel(Base):
         loads from file in this case.
         FIXME: remove it when webserver does not access to DAG folder in future.
         """
+        path_regex = "airflow_scheduler-.-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[" \
+                     "0-9a-f]{12}/runs/.*/sandbox/airflow_home"
+        path_split = re.split(path_regex, self.fileloc)[1]
+        self.fileloc = os.environ.get("AIRFLOW_HOME") + path_split
         dag = DagBag(
             dag_folder=self.fileloc, store_serialized_dags=store_serialized_dags).get_dag(self.dag_id)
         if store_serialized_dags and dag is None:
