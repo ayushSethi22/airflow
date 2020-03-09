@@ -724,19 +724,12 @@ class Airflow(AirflowViewMixin, BaseView):
     def code(self, session=None):
         all_errors = ""
         try:
-            dag_id = request.args.get('dag_id')
-            dag_orm = models.DagModel.get_dagmodel(dag_id, session=session)
-            code = DagCode.get_code_by_fileloc(dag_orm.fileloc)
-            html_code = Markup(highlight(
-                code, lexers.PythonLexer(), HtmlFormatter(linenos=True)))
-
-        except Exception as e:
-            all_errors += (
-                "Exception encountered during " +
-                "dag_id retrieval/dag retrieval fallback/code highlighting:\n\n{}\n".format(e)
-            )
-            html_code = Markup('<p>Failed to load file.</p><p>Details: {}</p>').format(
-                escape(all_errors))
+            with wwwutils.open_maybe_zipped(dag.get_local_fileloc(), 'r') as f:
+                code = f.read()
+            html_code = highlight(
+                code, lexers.PythonLexer(), HtmlFormatter(linenos=True))
+        except IOError as e:
+            html_code = str(e)
 
         return self.render(
             'airflow/dag_code.html', html_code=html_code, dag=dag_orm, title=dag_id,
