@@ -1766,6 +1766,24 @@ class DagModel(Base, LoggingMixin):
     def __repr__(self):
         return "<DAG: {self.dag_id}>".format(self=self)
 
+    def get_local_fileloc(self):
+        # TODO: [CX-16591] Resolve this in upstream by storing relative path in db (config driven)
+        try:
+            # Fix for DAGs that are manually triggered in the UI, as the DAG path in the DB is
+            # stored by the scheduler which has a different path than the webserver due to absolute
+            # paths in aurora including randomly generated job-specific directories. Due to this
+            # the path the webserver uses when it tries to trigger a DAG does not match the
+            # existing scheduler path and the DAG can not be found.
+            # Also, fix for render code on UI by changing "/code" in views.py
+            path_regex = "airflow_scheduler-.-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[" \
+                         "0-9a-f]{12}/runs/.*/sandbox/airflow_home"
+            path_split = re.split(path_regex, self.fileloc)[1]
+            return os.environ.get("AIRFLOW_HOME") + path_split
+        except IndexError:
+            self.log.info("No airflow_home in path: " + self.fileloc)
+
+        return self.fileloc
+
     @property
     def timezone(self):
         return settings.TIMEZONE
@@ -1815,22 +1833,9 @@ class DagModel(Base, LoggingMixin):
     def safe_dag_id(self):
         return self.dag_id.replace('.', '__dot__')
 
-    def get_dag(self, store_serialized_dags=False):
-        """Creates a dagbag to load and return a DAG.
-        Calling it from UI should set store_serialized_dags = STORE_SERIALIZED_DAGS.
-        There may be a delay for scheduler to write serialized DAG into database,
-        loads from file in this case.
-        FIXME: remove it when webserver does not access to DAG folder in future.
-        """
-        path_regex = "airflow_scheduler-.-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[" \
-                     "0-9a-f]{12}/runs/.*/sandbox/airflow_home"
-        path_split = re.split(path_regex, self.fileloc)[1]
-        self.fileloc = os.environ.get("AIRFLOW_HOME") + path_split
-        dag = DagBag(
-            dag_folder=self.fileloc, store_serialized_dags=store_serialized_dags).get_dag(self.dag_id)
-        if store_serialized_dags and dag is None:
-            dag = self.get_dag()
-        return dag
+
+    def get_dag(self):
+        return DagBag(dag_folder=self.get_local_fileloc()).get_dag(self.dag_id)
 
     @provide_session
     def create_dagrun(self,
