@@ -134,7 +134,10 @@ class DagFileProcessor(AbstractDagFileProcessor, LoggingMixin, MultiprocessingSt
         stdout = StreamLogWriter(log, logging.INFO)
         stderr = StreamLogWriter(log, logging.WARN)
 
+        log.info("Setting log context for file {}".format(file_path))
+        # log file created here
         set_context(log, file_path)
+        log.info("Successfully set log context for file {}".format(file_path))
         setproctitle("airflow scheduler - DagFileProcessor {}".format(file_path))
 
         try:
@@ -154,9 +157,11 @@ class DagFileProcessor(AbstractDagFileProcessor, LoggingMixin, MultiprocessingSt
             log.info("Started process (PID=%s) to work on %s",
                      os.getpid(), file_path)
             scheduler_job = SchedulerJob(dag_ids=dag_ids, log=log)
+            log.info("Processing file {}".format(file_path))
             result = scheduler_job.process_file(file_path,
                                                 zombies,
                                                 pickle_dags)
+
             result_channel.send(result)
             end_time = time.time()
             log.info(
@@ -178,6 +183,7 @@ class DagFileProcessor(AbstractDagFileProcessor, LoggingMixin, MultiprocessingSt
         """
         Launch the process and start processing the DAG.
         """
+
         if six.PY2:
             context = multiprocessing
         else:
@@ -1047,7 +1053,7 @@ class SchedulerJob(BaseJob):
 
                 if self.executor.has_task(task_instance):
                     self.log.debug(
-                        "Not handling task %s as the executor reports it is running",
+                        "Still handling task %s even though as the executor reports it is running",
                         task_instance.key
                     )
                     num_tasks_in_executor += 1
@@ -1469,8 +1475,51 @@ class SchedulerJob(BaseJob):
             simple_dags = self._get_simple_dags()
             self.log.debug("Harvested {} SimpleDAGs".format(len(simple_dags)))
 
-            # Send tasks for execution if available
-            simple_dag_bag = SimpleDagBag(simple_dags)
+            if len(simple_dags) > 0:
+                try:
+                    simple_dag_bag = SimpleDagBag(simple_dags)
+
+                    # Handle cases where a DAG run state is set (perhaps manually) to
+                    # a non-running state. Handle task instances that belong to
+                    # DAG runs in those states
+
+                    # If a task instance is up for retry but the corresponding DAG run
+                    # isn't running, mark the task instance as FAILED so we don't try
+                    # to re-run it.
+                    self._change_state_for_tis_without_dagrun(simple_dag_bag,
+                                                              [State.UP_FOR_RETRY],
+                                                              State.FAILED)
+                    # If a task instance is scheduled or queued or up for reschedule,
+                    # but the corresponding DAG run isn't running, set the state to
+                    # NONE so we don't try to re-run it.
+                    self._change_state_for_tis_without_dagrun(simple_dag_bag,
+                                                              [State.QUEUED,
+                                                               State.SCHEDULED,
+                                                               State.UP_FOR_RESCHEDULE],
+                                                              State.NONE)
+
+                    scheduled_dag_ids = ", ".join(simple_dag_bag.dag_ids)
+                    self.log.info('DAGs to be executed: {}'.format(scheduled_dag_ids))
+
+                    # TODO(CX-17516): State.QUEUED has been added here which is a hack as the Celery
+                    # Executor does not reliably enqueue tasks with the my MySQL broker, and we have
+                    # seen tasks hang after they get queued. The effect of this hack is queued tasks
+                    # will constantly be requeued and resent to the executor (Celery).
+                    # This should be removed when we switch away from the MySQL Celery backend.
+                    self._execute_task_instances(simple_dag_bag,
+                                                 (State.SCHEDULED, State.QUEUED))
+
+                except Exception as e:
+                    self.log.error("Error queuing tasks")
+                    self.log.exception(e)
+                    continue
+
+            # Call heartbeats
+            self.log.debug("Heartbeating the executor")
+            self.executor.heartbeat()
+
+            self._change_state_for_tasks_failed_to_execute()
+
 
             if not self._validate_and_run_task_instances(simple_dag_bag=simple_dag_bag):
                 continue
@@ -1507,7 +1556,9 @@ class SchedulerJob(BaseJob):
                 sleep(sleep_length)
 
         # Stop any processors
+        self.log.info("Terminating DAG processors")
         self.processor_agent.terminate()
+        self.log.info("All DAG processors terminated")
 
         # Verify that all files were processed, and if so, deactivate DAGs that
         # haven't been touched by the scheduler as they likely have been

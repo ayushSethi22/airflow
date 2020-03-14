@@ -557,6 +557,7 @@ INSTALL_REQUIREMENTS = [
     'configparser>=3.5.0, <3.6.0',
     'croniter>=0.3.17, <0.4',
     'dill>=0.2.2, <0.4',
+    'dumb-init>=1.2.2',
     'email-validator',
     'enum34~=1.1.6;python_version<"3.4"',
     'flask>=1.1.0, <2.0',
@@ -593,6 +594,8 @@ INSTALL_REQUIREMENTS = [
     'sqlalchemy_jsonfield~=0.9;python_version>="3.5"',
     'tabulate>=0.7.5, <0.9',
     'tenacity==4.12.0',
+    'termcolor==1.1.0',
+    'text-unidecode==1.2',
     'thrift>=0.9.2',
     'typing;python_version<"3.5"',
     'typing-extensions>=3.7.4;python_version<"3.8"',
@@ -627,6 +630,7 @@ def do_setup():
         include_package_data=True,
         zip_safe=False,
         scripts=['airflow/bin/airflow'],
+
         install_requires=INSTALL_REQUIREMENTS,
         setup_requires=[
             'bowler',
