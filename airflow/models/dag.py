@@ -1506,6 +1506,8 @@ class DAG(BaseDag, LoggingMixin):
         """
         from airflow.models.serialized_dag import SerializedDagModel
 
+        self.log.info("Attempting to sync DAG {} to DB".format(self._dag_id))
+
         if owner is None:
             owner = self.owner
         if sync_time is None:
@@ -1539,8 +1541,12 @@ class DAG(BaseDag, LoggingMixin):
 
         session.commit()
 
+        self.log.info("Synced DAG %s to DB", self._dag_id)
+
         for subdag in self.subdags:
+            self.log.info("Syncing SubDAG %s", subdag._dag_id)
             subdag.sync_to_db(owner=owner, sync_time=sync_time, session=session)
+            self.log.info("Successfully synced SubDAG %s", subdag._dag_id)
 
         # Write DAGs to serialized_dag table in DB.
         # subdags are not written into serialized_dag, because they are not displayed

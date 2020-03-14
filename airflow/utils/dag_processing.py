@@ -1254,6 +1254,8 @@ class DagFileProcessorManager(LoggingMixin):
             )
             self._processors[file_path] = processor
 
+        self.log.info("Number of active file processors: {}".format(len(self._processors)))
+
     def prepare_file_path_queue(self):
         """
         Generate more file paths to process. Result are saved in _file_path_queue.
@@ -1335,6 +1337,7 @@ class DagFileProcessorManager(LoggingMixin):
                 zombies.append(sti)
 
             self._zombies = zombies
+
 
     def _kill_timed_out_processors(self):
         """
