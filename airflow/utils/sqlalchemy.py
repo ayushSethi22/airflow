@@ -95,15 +95,10 @@ class UtcDateTime(TypeDecorator):
                 raise TypeError('expected datetime.datetime, not ' +
                                 repr(value))
             elif value.tzinfo is None:
-                raise ValueError('naive datetime is disallowed')
-            # For mysql we should store timestamps as naive values
-            # Timestamp in MYSQL is not timezone aware. In MySQL 5.6
-            # timezone added at the end is ignored but in MySQL 5.7
-            # inserting timezone value fails with 'invalid-date'
-            # See https://issues.apache.org/jira/browse/AIRFLOW-7001
-            if using_mysql:
-                from airflow.utils.timezone import make_naive
-                return make_naive(value, timezone=utc)
+                #TODO: Sumit, causing issue with mysql, need to fix upstream
+                #raise ValueError('naive datetime is disallowed')
+                value = value.replace(tzinfo=utc)
+
             return value.astimezone(utc)
 
     def process_result_value(self, value, dialect):
