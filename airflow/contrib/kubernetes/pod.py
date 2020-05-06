@@ -98,7 +98,8 @@ class Pod(object):
             security_context=None,
             configmaps=None,
             pod_runtime_info_envs=None,
-            dnspolicy=None
+            dnspolicy=None,
+            priority_class=None
     ):
         warnings.warn(
             "Using `airflow.contrib.kubernetes.pod.Pod` is deprecated. Please use `k8s.V1Pod`.",
@@ -130,6 +131,8 @@ class Pod(object):
         self.configmaps = configmaps or []
         self.pod_runtime_info_envs = pod_runtime_info_envs or []
         self.dnspolicy = dnspolicy
+        self.priority_class = priority_class
+
 
     def to_v1_kubernetes_pod(self):
         """
