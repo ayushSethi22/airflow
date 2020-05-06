@@ -137,6 +137,7 @@ class Pod(object):
         self.configmaps = configmaps or []
         self.pod_runtime_info_envs = pod_runtime_info_envs or []
         self.dnspolicy = dnspolicy
+        self.priority_class = priority_class
 
 
     def to_v1_kubernetes_pod(self):
@@ -297,4 +298,3 @@ def _extract_volumes(volumes):
             volume = Volume(name=volume.get("name"), configs=volume)
         result.append(volume)
     return result
-
