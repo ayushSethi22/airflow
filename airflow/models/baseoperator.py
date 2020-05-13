@@ -309,7 +309,7 @@ class BaseOperator(LoggingMixin):
         priority_weight=1,  # type: int
         weight_rule=WeightRule.DOWNSTREAM,  # type: str
         queue=conf.get('celery', 'default_queue'),  # type: str
-        pool=Pool.DEFAULT_POOL_NAME,  # type: str
+        pool=None,  # type: str
         pool_slots=1,  # type: int
         sla=None,  # type: Optional[timedelta]
         execution_timeout=None,  # type: Optional[timedelta]
@@ -379,7 +379,7 @@ class BaseOperator(LoggingMixin):
         self._schedule_interval = schedule_interval
         self.retries = retries
         self.queue = queue
-        self.pool = pool
+        self.pool = Pool.DEFAULT_POOL_NAME if pool is None else pool
         self.pool_slots = pool_slots
         if self.pool_slots < 1:
             raise AirflowException("pool slots for %s in dag %s cannot be less than 1"

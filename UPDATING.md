@@ -214,6 +214,18 @@ The following metrics are deprecated and won't be emitted in Airflow 2.0:
 
 No breaking changes.
 
+## CP
+
+### Ability to patch Pool.DEFAULT_POOL_NAME in BaseOperator
+It was not possible to patch pool in BaseOperator as the signature sets the default value of pool
+as Pool.DEFAULT_POOL_NAME.
+While using subdagoperator in unittest(without initializing the sqlite db), it was throwing the
+following error:
+```
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: slot_pool.
+```
+Fix for this, https://github.com/apache/airflow/pull/8587
+
 ## Airflow 1.10.4
 
 ### Export MySQL timestamps as UTC
