@@ -608,3 +608,4 @@ class DagRunTest(unittest.TestCase):
         dagrun.verify_integrity()
         task = dagrun.get_task_instances()[0]
         assert task.queue == 'queue1'
+
