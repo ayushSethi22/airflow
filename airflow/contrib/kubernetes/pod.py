@@ -138,6 +138,7 @@ class Pod(object):
         self.pod_runtime_info_envs = pod_runtime_info_envs or []
         self.dnspolicy = dnspolicy
         self.priority_class = priority_class
+        self.lifecycle = lifecycle or {}
 
 
     def to_v1_kubernetes_pod(self):
