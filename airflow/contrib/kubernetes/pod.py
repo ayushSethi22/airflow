@@ -103,13 +103,9 @@ class Pod(object):
             security_context=None,
             configmaps=None,
             pod_runtime_info_envs=None,
-<<<<<<< HEAD
-            dnspolicy=None
-=======
             dnspolicy=None,
             priority_class=None,
             lifecycle=None
->>>>>>> bac4acd... [TWTR][EWT-472] Add lifecycle support while launching worker pods (#59)
     ):
         warnings.warn(
             "Using `airflow.contrib.kubernetes.pod.Pod` is deprecated. Please use `k8s.V1Pod`.",
@@ -304,4 +300,7 @@ def _extract_volumes(volumes):
 =======
         self.priority_class = priority_class
         self.lifecycle = lifecycle or {}
+<<<<<<< HEAD
+>>>>>>> bac4acd... [TWTR][EWT-472] Add lifecycle support while launching worker pods (#59)
+=======
 >>>>>>> bac4acd... [TWTR][EWT-472] Add lifecycle support while launching worker pods (#59)
