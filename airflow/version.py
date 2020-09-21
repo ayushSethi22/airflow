@@ -18,4 +18,9 @@
 # under the License.
 #
 
+<<<<<<< HEAD
 version = '1.10.12'
+=======
+version = '1.10.4+twtr19'
+
+>>>>>>> bac4acd... [TWTR][EWT-472] Add lifecycle support while launching worker pods (#59)
