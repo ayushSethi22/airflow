@@ -49,6 +49,7 @@ CELERY_SEND_ERR_MSG_HEADER = 'Error sending Celery task'
 
 OPERATION_TIMEOUT = conf.getint('celery', 'operation_timeout', fallback=2)
 
+
 '''
 To start the celery worker, run the command:
 airflow worker
