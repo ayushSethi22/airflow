@@ -1839,7 +1839,6 @@ class DagModel(Base, LoggingMixin):
     def safe_dag_id(self):
         return self.dag_id.replace('.', '__dot__')
 
-
     def get_dag(self):
         return DagBag(dag_folder=self.get_local_fileloc()).get_dag(self.dag_id)
 

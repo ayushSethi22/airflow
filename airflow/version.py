@@ -18,6 +18,6 @@
 # under the License.
 #
 
-version = '1.10.12'
+version = '1.10.12+test7'
 
 

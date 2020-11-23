@@ -1519,8 +1519,7 @@ class SchedulerJob(BaseJob):
             self.executor.heartbeat()
 
             self._change_state_for_tasks_failed_to_execute()
-
-
+            simple_dag_bag = SimpleDagBag(simple_dags)
             if not self._validate_and_run_task_instances(simple_dag_bag=simple_dag_bag):
                 continue
 

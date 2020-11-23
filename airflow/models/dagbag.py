@@ -300,12 +300,12 @@ class DagBag(BaseDagBag, LoggingMixin):
                 if isinstance(dag, DAG):
                     if not dag.full_filepath:
                         dag.full_filepath = filepath
-                        if dag.get_local_fileloc() != filepath and not is_zipfile:
+                        if dag.fileloc != filepath and not is_zipfile:
                             dag.fileloc = filepath
                     try:
                         dag.is_subdag = False
-                        if isinstance(dag._schedule_interval, six.string_types):
-                            croniter(dag._schedule_interval)
+                        if isinstance(dag.normalized_schedule_interval, six.string_types):
+                            croniter(dag.normalized_schedule_interval)
                         self.bag_dag(dag, parent_dag=dag, root_dag=dag)
                         found_dags.append(dag)
                         found_dags += dag.subdags
