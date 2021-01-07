@@ -78,7 +78,6 @@ class KubeConfig:
         )
         self.kube_node_selectors = configuration_dict.get('kubernetes_node_selectors', {})
         self.kube_annotations = configuration_dict.get('kubernetes_annotations', {}) or None
-        self.kube_worker_resources = configuration_dict.get('kubernetes_worker_resources',
         self.pod_template_file = conf.get(self.kubernetes_section, 'pod_template_file',
                                           fallback=None)
 
