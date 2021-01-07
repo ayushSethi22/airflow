@@ -1840,7 +1840,7 @@ class DagModel(Base, LoggingMixin):
         return self.dag_id.replace('.', '__dot__')
 
 
-    def get_dag(self):
+    def get_dag(self, store_serialized_dags=False):
         """Creates a dagbag to load and return a DAG.
         Calling it from UI should set store_serialized_dags = STORE_SERIALIZED_DAGS.
         There may be a delay for scheduler to write serialized DAG into database,
