@@ -209,7 +209,6 @@ sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: slot_
 ```
 Fix for this, https://github.com/apache/airflow/pull/8587
 
-## Airflow 1.10.4
 
 ### Restrict editing DagRun State in the old UI (Flask-admin based UI)
 

@@ -6,7 +6,7 @@ https://confluence.twitter.biz/display/ENG/Overview%3A+Python+3rdparty+in+Source
 1.  Create a git branch for this change.
 2.  Edit `airflow/version.py` to change the version.
 3.  Edit `source/3rdparty/python/BUILD` with the corresponding version.
-4.  Run the command `python2.7 setup.py bdist_wheel` in the `airflow` directory to build the wheel.
+4.  Run the command `python3.7 setup.py bdist_wheel` in the `airflow` directory to build the wheel.
     It will be written to `airflow/dist`.
 5.  Clean out the pex cache: `rm -rf ~/.pex ~/.cache/pants`.
 6.  Run `ps aux | grep pantsd` to find the pid of the pantsd process.

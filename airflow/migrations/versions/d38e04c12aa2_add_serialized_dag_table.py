@@ -58,13 +58,13 @@ def upgrade():
         'idx_fileloc_hash', 'serialized_dag', ['fileloc_hash'])
 
     if conn.dialect.name == "mysql":
-        # conn.execute("SET time_zone = '+00:00'")
-        # cur = conn.execute("SELECT @@explicit_defaults_for_timestamp")
-        # res = cur.fetchall()
-        # if res[0][0] == 0:
-        #     raise Exception(
-        #         "Global variable explicit_defaults_for_timestamp needs to be on (1) for mysql"
-        #     )
+        conn.execute("SET time_zone = '+00:00'")
+        cur = conn.execute("SELECT @@explicit_defaults_for_timestamp")
+        res = cur.fetchall()
+        if res[0][0] == 0:
+            raise Exception(
+                "Global variable explicit_defaults_for_timestamp needs to be on (1) for mysql"
+            )
 
         op.alter_column(  # pylint: disable=no-member
             table_name="serialized_dag",
