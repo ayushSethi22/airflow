@@ -68,8 +68,7 @@ def upgrade():
             column_name="last_updated",
             type_=mysql.TIMESTAMP(fsp=6),
             nullable=False,
-            server_default=text('CURRENT_TIMESTAMP(6)')
-        )
+            server_default=text('CURRENT_TIMESTAMP(6)'))
     else:
         # sqlite and mssql datetime are fine as is.  Therefore, not converting
         if conn.dialect.name in ("sqlite", "mssql"):
