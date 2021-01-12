@@ -59,9 +59,11 @@ def upgrade():
                     sa.Column('source_code', sa.UnicodeText(), nullable=False),
                     sa.Column('last_updated', sa.TIMESTAMP(timezone=True), nullable=False))
 
-    op.alter_column(table_name='dag_code', column_name='last_updated',
-        type_=mysql.TIMESTAMP(fsp=6), nullable=False,
-        server_default=text('CURRENT_TIMESTAMP(6)'))
+    op.alter_column(table_name='dag_code',
+                    column_name='last_updated',
+                    type_=mysql.TIMESTAMP(fsp=6),
+                    nullable=False,
+                    server_default=text('CURRENT_TIMESTAMP(6)'))
 
     conn = op.get_bind()
     if conn.dialect.name not in ('sqlite'):
